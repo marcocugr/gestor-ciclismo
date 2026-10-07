@@ -34,13 +34,19 @@ func NuevoNombre(raw string) (Nombre, error) {
 	// 2. Normalizar acentos y diacríticos
 	limpio = quitarAcentos(limpio)
 
-	// 3. Normalizar comas y espacios alrededor
-	limpio = strings.ReplaceAll(limpio, " ,", ",")
-	limpio = strings.ReplaceAll(limpio, ", ", ",")
-
-	// 4. Colapsar espacios y recortar
+	// 3. Colapsar espacios y recortar
 	limpio = espaciosRegex.ReplaceAllString(limpio, " ")
 	limpio = strings.TrimSpace(limpio)
+
+	// 4. Normalizar espacios alrededor de comas si existen
+	if strings.Contains(limpio, ",") {
+		partes := strings.Split(limpio, ",")
+		for i := range partes {
+			partes[i] = espaciosRegex.ReplaceAllString(partes[i], " ")
+			partes[i] = strings.TrimSpace(partes[i])
+		}
+		limpio = strings.Join(partes, ", ")
+	}
 
 	// 5. Convertir a mayúsculas
 	limpio = strings.ToUpper(limpio)
