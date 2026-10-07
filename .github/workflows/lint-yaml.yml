@@ -1,0 +1,30 @@
+name: Yaml Lint
+
+on:
+  push:
+    paths:
+      - "**/*.ya?ml"
+  pull_request:
+    paths:
+      - "**/*.ya?ml"
+
+jobs:
+  lintAllTheThings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar yq si no está presente
+        run: |
+          if ! command -v yq &> /dev/null; then
+            sudo snap install yq 2>/dev/null || (sudo apt-get update && sudo apt-get install -y yq)
+          fi
+          yq --version
+
+      - name: Comprueba la sintaxis de todos los ficheros YAML del repositorio
+        run: |
+          find . -type f \( -name "*.yml" -o -name "*.yaml" \) ! -path "*/.git/*" | while read -r archivo; do
+            echo "Comprobando sintaxis de $archivo..."
+            yq eval '.' "$archivo" > /dev/null
+          done
