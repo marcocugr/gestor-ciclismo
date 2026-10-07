@@ -41,7 +41,6 @@ A partir de las conversaciones con el cliente en los issues #2, #8 y #14, se ha 
 * **Resultado:** Desempeño de un corredor en una edición concreta. Una celda vacía del ranking se representa mediante la ausencia del Nombre del corredor en los resultados de esa edición. Un resultado existente con Puntos de valor 0 representa que el corredor participó y no obtuvo puntos.
 * **Temporada:** Año natural de competición deportiva (p. ej., 2024, 2025, 2026). Debe ser un año positivo y que ya haya comenzado en el sistema.
 * **Histórico:** Conjunto de temporadas que Alfonso consulta para valorar el rendimiento de un corredor en una carrera: la temporada en curso más las dos anteriores (3 temporadas en total).
-* **Total:** Suma acumulada de puntos obtenidos por un corredor en una temporada o conjunto de carreras. Es un valor calculado, no un dato almacenado.
 
 ---
 
