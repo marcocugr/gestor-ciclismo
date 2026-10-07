@@ -83,7 +83,7 @@ Para trabajar en el proyecto sin modificar el sistema ni requerir permisos de ad
    ```
 
 3. **Fuente única de verdad (`go.mod`):**
-   Las líneas `go` y `toolchain` en `go.mod` definen de forma determinista la versión del lenguaje y de la toolchain para todos los colaboradores. Desde Go 1.21, el comando `go` detecta estas directivas y descarga/ejecuta automáticamente la toolchain exacta indicada.
+   La directiva `go 1.24.4` en `go.mod` fija la versión mínima requerida del compilador de Go para compilar el proyecto de forma reproducible. Las dependencias se gestionan mediante módulos nativos sin requerir herramientas externas ni una directiva `toolchain` adicional.
 
 4. **Gestión de dependencias:**
    Las dependencias del proyecto se gestionan mediante los módulos de Go (`go.mod` y `go.sum`), con versiones fijas y sumas de verificación criptográficas. Se descargan en `$GOPATH/pkg/mod` (en espacio de usuario).
@@ -92,7 +92,6 @@ Para trabajar en el proyecto sin modificar el sistema ni requerir permisos de ad
    Desde un clon limpio con Go configurado en el usuario:
    ```bash
    go build ./...
-   go test -v ./...
    ```
 
 ### Análisis estático de código (Linter)

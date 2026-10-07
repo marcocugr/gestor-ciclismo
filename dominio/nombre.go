@@ -3,7 +3,6 @@ package dominio
 import (
 	"regexp"
 	"strings"
-	"unicode"
 )
 
 var (
@@ -23,10 +22,11 @@ type Nombre struct {
 // Realiza los siguientes pasos de normalización (acordados en issues #9 y #13):
 //  1. Elimina texto entre paréntesis (categoría y comunidad autónoma).
 //  2. Elimina acentos y tildes (p. ej. LÓPEZ -> LOPEZ).
-//  3. Corrige espacios alrededor de comas (p. ej. "CRAUSE , PEDRI" -> "CRAUSE, PEDRI").
-//  4. Colapsa espacios redundantes y recorta extremos.
-//  5. Convierte todo a mayúsculas para comparación uniforme.
-//  6. Valida que no esté vacío y contenga tanto nombre como apellidos.
+//  3. Colapsa espacios redundantes y recorta extremos.
+//  4. Valida estrictamente la presencia de nombre y apellidos: si hay coma, debe existir texto
+//     válido a ambos lados tras limpiar espacios; si no hay coma, debe haber al menos dos palabras.
+//  5. Normaliza comas con el formato "APELLIDOS, NOMBRE" sin espacios residuales.
+//  6. Convierte todo a mayúsculas para comparación uniforme.
 func NuevoNombre(raw string) (Nombre, error) {
 	// 1. Eliminar paréntesis y su contenido
 	limpio := parentesisRegex.ReplaceAllString(raw, " ")
@@ -38,27 +38,44 @@ func NuevoNombre(raw string) (Nombre, error) {
 	limpio = espaciosRegex.ReplaceAllString(limpio, " ")
 	limpio = strings.TrimSpace(limpio)
 
-	// 4. Normalizar espacios alrededor de comas si existen
+	if limpio == "" {
+		return Nombre{}, ErrorNombreInvalido{
+			Motivo: "el nombre no puede estar vacío",
+			Texto:  raw,
+		}
+	}
+
+	// 4. Validar que incluya tanto nombre como apellidos
 	if strings.Contains(limpio, ",") {
 		partes := strings.Split(limpio, ",")
-		for i := range partes {
-			partes[i] = espaciosRegex.ReplaceAllString(partes[i], " ")
-			partes[i] = strings.TrimSpace(partes[i])
+		if len(partes) != 2 {
+			return Nombre{}, ErrorNombreInvalido{
+				Motivo: "formato con coma inválido, debe contener apellidos y nombre separados por una única coma",
+				Texto:  raw,
+			}
 		}
-		limpio = strings.Join(partes, ", ")
+		lado1 := strings.TrimSpace(espaciosRegex.ReplaceAllString(partes[0], " "))
+		lado2 := strings.TrimSpace(espaciosRegex.ReplaceAllString(partes[1], " "))
+		if lado1 == "" || lado2 == "" {
+			return Nombre{}, ErrorNombreInvalido{
+				Motivo: "el corredor debe incluir tanto apellidos como nombre a ambos lados de la coma",
+				Texto:  raw,
+			}
+		}
+		limpio = lado1 + ", " + lado2
+	} else {
+		palabras := strings.Fields(limpio)
+		if len(palabras) < 2 {
+			return Nombre{}, ErrorNombreInvalido{
+				Motivo: "el corredor debe incluir al menos nombre y apellidos",
+				Texto:  raw,
+			}
+		}
+		limpio = strings.Join(palabras, " ")
 	}
 
 	// 5. Convertir a mayúsculas
 	limpio = strings.ToUpper(limpio)
-
-	if limpio == "" {
-		return Nombre{}, ErrNombreVacio
-	}
-
-	// 6. Validar que incluya nombre y apellidos
-	if !tieneNombreYApellidos(limpio) {
-		return Nombre{}, ErrNombreSinApellidos
-	}
 
 	return Nombre{valor: limpio}, nil
 }
@@ -104,18 +121,4 @@ func quitarAcentos(s string) string {
 		}
 	}
 	return b.String()
-}
-
-// tieneNombreYApellidos comprueba si la cadena normalizada cuenta con al menos dos componentes.
-func tieneNombreYApellidos(s string) bool {
-	if strings.Contains(s, ",") {
-		partes := strings.Split(s, ",")
-		if len(partes) >= 2 && len(strings.TrimSpace(partes[0])) > 0 && len(strings.TrimSpace(partes[1])) > 0 {
-			return true
-		}
-	}
-	palabras := strings.FieldsFunc(s, func(r rune) bool {
-		return unicode.IsSpace(r) || r == ','
-	})
-	return len(palabras) >= 2
 }

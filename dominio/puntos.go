@@ -9,10 +9,10 @@ type Puntos struct {
 }
 
 // NuevosPuntos crea una nueva instancia del objeto valor Puntos validando que sea >= 0.
-// Si el valor recibido es negativo, devuelve ErrPuntosNegativos (issue #7, #13).
+// Si el valor recibido es negativo, devuelve ErrorPuntosNegativos con el valor recibido (issue #7, #13).
 func NuevosPuntos(valor int) (Puntos, error) {
 	if valor < 0 {
-		return Puntos{}, ErrPuntosNegativos
+		return Puntos{}, ErrorPuntosNegativos{Valor: valor}
 	}
 	return Puntos{valor: valor}, nil
 }

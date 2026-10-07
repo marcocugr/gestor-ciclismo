@@ -11,7 +11,10 @@ type Corredor struct {
 // NuevoCorredor instancia un nuevo Corredor a partir de su objeto valor Nombre.
 func NuevoCorredor(nombre Nombre) (*Corredor, error) {
 	if nombre.Valor() == "" {
-		return nil, ErrNombreVacio
+		return nil, ErrorNombreInvalido{
+			Motivo: "el nombre no puede estar vacío",
+			Texto:  "",
+		}
 	}
 	return &Corredor{
 		nombre: nombre,

@@ -1,3 +1,3 @@
-module github.com/marcocugr/gestor-ciclismo
+module github.com/manuusnchz/gestor-ciclismo
 
 go 1.24.4

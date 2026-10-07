@@ -15,11 +15,11 @@ type Carrera struct {
 func NuevaCarrera(id, nombre string) (*Carrera, error) {
 	idLimpio := strings.TrimSpace(id)
 	if idLimpio == "" {
-		return nil, ErrCarreraSinID
+		return nil, ErrorCarreraInvalida{Motivo: "el identificador de la carrera no puede estar vacío"}
 	}
 	nombreLimpio := strings.TrimSpace(nombre)
 	if nombreLimpio == "" {
-		return nil, ErrCarreraSinNombre
+		return nil, ErrorCarreraInvalida{Motivo: "el nombre de la carrera no puede estar vacío"}
 	}
 	return &Carrera{
 		id:        idLimpio,
@@ -38,15 +38,26 @@ func (c *Carrera) Nombre() string {
 	return c.nombre
 }
 
-// AgregarEdicion vincula una edición a la carrera garantizando la invariante del dominio:
-// una carrera no puede tener más de una edición en la misma temporada (issue #10, #13).
+// AgregarEdicion vincula una edición a la carrera garantizando dos invariantes del dominio:
+//  1. La edición debe pertenecer obligatoriamente a esta carrera receptora (coherencia de ID).
+//  2. Una carrera no puede tener más de una edición en la misma temporada (issue #10, #13).
 func (c *Carrera) AgregarEdicion(edicion *Edicion) error {
 	if edicion == nil {
-		return ErrEdicionNula
+		return ErrParametroNulo
+	}
+	if edicion.CarreraID() != c.id {
+		return ErrorEdicionCarreraIncompatible{
+			CarreraReceptoraID: c.id,
+			EdicionCarreraID:   edicion.CarreraID(),
+			NombreEdicion:      edicion.NombreOficial(),
+		}
 	}
 	anio := edicion.Temporada().Anio()
 	if _, existe := c.ediciones[anio]; existe {
-		return ErrEdicionDuplicadaEnTemporada
+		return ErrorEdicionDuplicadaEnTemporada{
+			CarreraID: c.id,
+			Anio:      anio,
+		}
 	}
 	c.ediciones[anio] = edicion
 	return nil
