@@ -60,6 +60,39 @@ Las evidencias y capturas de la configuración del entorno (claves SSH e identid
 * **Objetivo 0**: completado (problema identificado, repositorio configurado).
 * **Objetivo 1**: planificación del proyecto — jornada de usuario, historias de
   usuario y milestones iniciales definidos.
+* **Objetivo 2**: modelado del problema en Go, lenguaje ubicuo de HU001 y configuración del entorno de desarrollo.
+
+## Entorno de desarrollo y gestión de versiones de Go
+
+El proyecto utiliza **Go** sobre **Linux** como plataforma de desarrollo acordada (issues #5 y #6).
+
+### Instalación de Go en espacio de usuario
+
+Para trabajar en el proyecto sin modificar el sistema ni requerir permisos de administrador (`root`):
+
+1. **Instalación inicial:** Descargar el binario oficial de Go desde [golang.org/dl](https://golang.org/dl/) y descomprimirlo en el directorio de usuario (por ejemplo, `~/.local/go` o `~/go`):
+   ```bash
+   tar -C ~/.local -xzf go1.24.4.linux-amd64.tar.gz
+   export PATH=$HOME/.local/go/bin:$HOME/go/bin:$PATH
+   ```
+
+2. **Gestión y cambio de versiones en espacio de usuario:** Si se requiere una versión diferente de Go, se puede instalar y descargar directamente en espacio de usuario sin tocar el sistema:
+   ```bash
+   go install golang.org/dl/go1.24.4@latest
+   go1.24.4 download
+   ```
+
+3. **Fuente única de verdad (`go.mod`):**
+   Las líneas `go` y `toolchain` en `go.mod` definen de forma determinista la versión del lenguaje y de la toolchain para todos los colaboradores. Desde Go 1.21, el comando `go` detecta estas directivas y descarga/ejecuta automáticamente la toolchain exacta indicada.
+
+4. **Gestión de dependencias:**
+   Las dependencias del proyecto se gestionan mediante los módulos de Go (`go.mod` y `go.sum`), con versiones fijas y sumas de verificación criptográficas. Se descargan en `$GOPATH/pkg/mod` (en espacio de usuario).
+
+5. **Compilación y verificación:**
+   Desde un clon limpio con Go configurado en el usuario:
+   ```bash
+   go build ./...
+   ```
 
 ## Documentación adicional
 
@@ -67,3 +100,4 @@ Las evidencias y capturas de la configuración del entorno (claves SSH e identid
 * [Historias de usuario](docs/historias-de-usuario.md)
 * [Milestones](docs/milestones.md)
 * [Referencia a persona](docs/personas.md)
+* [Análisis y modelado de HU001](docs/modelado-hu001.md)
