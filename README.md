@@ -92,7 +92,23 @@ Para trabajar en el proyecto sin modificar el sistema ni requerir permisos de ad
    Desde un clon limpio con Go configurado en el usuario:
    ```bash
    go build ./...
+   go test -v ./...
    ```
+
+### Análisis estático de código (Linter)
+
+El proyecto utiliza **`golangci-lint`** como herramienta de análisis estático acordada en el issue #16 para validar buenas prácticas y detectar posibles errores:
+
+1. **Instalación en espacio de usuario (sin permisos de administrador):**
+   ```bash
+   go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5
+   ```
+
+2. **Ejecución del linter:**
+   ```bash
+   golangci-lint run ./...
+   ```
+   La configuración se encuentra definida en `.golangci.yml`.
 
 ## Documentación adicional
 
